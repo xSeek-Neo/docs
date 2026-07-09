@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="zh">
+  <head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WebSocket 心跳检测 - 面试标准答案 - 葵花寶典</title>
+<script>{;const saved = localStorage.getItem('rspress-theme-appearance');const preferDark = window.matchMedia('(prefers-color-scheme: dark)').matches;const defaultTheme = 'auto';const theme = saved === 'light' || saved === 'dark' || saved === 'auto' ? saved : defaultTheme;const isDark = theme === 'auto' ? preferDark : theme === 'dark';document.documentElement.classList.toggle('dark', isDark);document.documentElement.classList.toggle('rp-dark', isDark);document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';}</script>
+<link href="/docs/static/css/styles.8782ec76ab.css" rel="stylesheet">
+<script defer src="/docs/static/js/styles.1243fb8d26.js"></script>
+<script defer src="/docs/static/js/lib-react.22a70b2cbf.js"></script>
+<script defer src="/docs/static/js/lib-router.d18ee60cd0.js"></script>
+<script defer src="/docs/static/js/559.75d053a0c0.js"></script>
+<script defer src="/docs/static/js/index.1e18d71dd1.js"></script>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Rspress v2.0.15">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="googlebot" content="noindex, nofollow">
+<link rel="icon" href="/docs/favicon.ico">
+<meta property="og:type" content="website">
+<meta property="og:title" content="WebSocket 心跳检测 - 面试标准答案 - 葵花寶典">
+<meta name="description" content="业精于勤荒于嬉，行成于思毁于随">
+<meta property="og:description" content="业精于勤荒于嬉，行成于思毁于随"></head>
+
+  <body>
+    <div id="__rspress_root"><link rel="preload" as="image" href="/docs/favicon.ico"/><header class="rp-nav"><div class="rp-nav__left"><div class="rp-nav__title"><a href="/docs/" class="rp-nav__title__link rp-link"><div class="rp-nav__title__logo"><img src="/docs/favicon.ico" alt="logo" id="logo" class="rspress-logo rp-nav__title__logo-image"/></div><span>葵花寶典</span></a></div></div><div class="rp-nav__right"><button class="rp-search-button"><div class="rp-search-button__content"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 20 21" class="rp-search-button__icon"><path fill="currentColor" d="M8.333 1.913A6.667 6.667 0 0 1 15 8.58c0 1.54-.525 2.957-1.402 4.085l4.49 4.492a.834.834 0 0 1-1.177 1.178l-4.491-4.49a6.64 6.64 0 0 1-4.087 1.402 6.667 6.667 0 0 1 0-13.334m0 1.667a5 5 0 1 0 0 10 5 5 0 0 0 0-10"></path></svg><span class="rp-search-button__word">搜索</span></div><div class="rp-search-button__hotkey" style="opacity:0"><span></span><span>K</span></div></button><div class="rp-search-button--mobile"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 20 21"><path fill="currentColor" d="M8.333 1.913A6.667 6.667 0 0 1 15 8.58c0 1.54-.525 2.957-1.402 4.085l4.49 4.492a.834.834 0 0 1-1.177 1.178l-4.491-4.49a6.64 6.64 0 0 1-4.087 1.402 6.667 6.667 0 0 1 0-13.334m0 1.667a5 5 0 1 0 0 10 5 5 0 0 0 0-10"></path></svg></div><ul class="rp-nav-menu rp-nav-menu--right"><li class="rp-nav-menu__item"><div class="rp-nav-menu__item__container">学习资料<svg width="1em" height="1em" viewBox="0 0 32 32" class="rp-nav-menu__item__icon"><path fill="currentColor" d="M16 22 6 12l1.4-1.4 8.6 8.6 8.6-8.6L26 12z"></path></svg></div><ul class="rp-hover-group rp-hover-group--hidden rp-hover-group--center"><li class="rp-hover-group__item" style="padding-left:8px" data-depth="0"><a href="https://es6.ruanyifeng.com" target="_blank" class="rp-hover-group__item__link rp-link" aria-label="ES6 入门教程-阮一峰">ES6 入门教程-阮一峰</a></li><li class="rp-hover-group__item" style="padding-left:8px" data-depth="0"><a href="https://stackoverflow.com" target="_blank" class="rp-hover-group__item__link rp-link" aria-label="StackOverFlow">StackOverFlow</a></li><li class="rp-hover-group__item" style="padding-left:8px" data-depth="0"><a href="https://interview.poetries.top/docs/base.html" target="_blank" class="rp-hover-group__item__link rp-link" aria-label="未来博客面试题">未来博客面试题</a></li></ul></li><li class="rp-nav-menu__item"><div class="rp-nav-menu__item__container">面试题<svg width="1em" height="1em" viewBox="0 0 32 32" class="rp-nav-menu__item__icon"><path fill="currentColor" d="M16 22 6 12l1.4-1.4 8.6 8.6 8.6-8.6L26 12z"></path></svg></div><ul class="rp-hover-group rp-hover-group--hidden rp-hover-group--center"><li class="rp-hover-group__item" style="padding-left:8px" data-depth="0"><a href="https://www.bookstack.cn/read/CS-Interview-Knowledge-Map/README.md" target="_blank" class="rp-hover-group__item__link rp-link" aria-label="面试题">面试题</a></li></ul></li><li class="rp-nav-menu__item"><div class="rp-nav-menu__item__container">GIT<svg width="1em" height="1em" viewBox="0 0 32 32" class="rp-nav-menu__item__icon"><path fill="currentColor" d="M16 22 6 12l1.4-1.4 8.6 8.6 8.6-8.6L26 12z"></path></svg></div><ul class="rp-hover-group rp-hover-group--hidden rp-hover-group--center"><li class="rp-hover-group__item" style="padding-left:8px" data-depth="0"><a href="https://github.com/xSeek-Neo" target="_blank" class="rp-hover-group__item__link rp-link" aria-label="我的GITHUB">我的GITHUB</a></li><li class="rp-hover-group__item" style="padding-left:8px" data-depth="0"><a href="/docs/K.GIT.html" class="rp-hover-group__item__link rp-link" aria-label="GIT常用命令">GIT常用命令</a></li></ul></li></ul><div class="rp-nav__others"><div class="rp-nav-menu__divider"></div><div class="rp-switch-appearance"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24" class="rp-switch-appearance__icon rp-switch-appearance__icon--sun"><path fill="currentColor" d="m7.001 15.848-1.226 1.226a.58.58 0 0 0 0 .818.58.58 0 0 0 .818 0l1.226-1.226a.58.58 0 0 0 0-.818.58.58 0 0 0-.818 0m-.352-8.735a.584.584 0 0 0 .825-.825L6.237 5.051a.584.584 0 0 0-.825.825zM5.011 11.07h-1.75a.584.584 0 0 0 0 1.167h1.75c.324 0 .584-.26.584-.583a.585.585 0 0 0-.584-.584m7.003-5.835c.324 0 .584-.26.584-.584V2.9a.58.58 0 0 0-.584-.584.58.58 0 0 0-.583.583V4.65c0 .323.262.584.583.584m5.616 1.621 1.226-1.225a.58.58 0 0 0 0-.818.58.58 0 0 0-.818 0l-1.226 1.225a.58.58 0 0 0 0 .818.576.576 0 0 0 .818 0m3.138 4.214h-1.75a.58.58 0 0 0-.584.584c0 .324.26.584.583.584h1.751a.584.584 0 1 0 0-1.167m-3.389 5.124a.584.584 0 0 0-.825.825l1.238 1.238a.584.584 0 0 0 .825-.826zm-5.365-9.795a5.256 5.256 0 0 0-5.257 5.258 5.256 5.256 0 0 0 5.257 5.257 5.256 5.256 0 0 0 5.257-5.257 5.256 5.256 0 0 0-5.257-5.258m0 11.675a.58.58 0 0 0-.583.583v1.751a.582.582 0 1 0 1.167 0v-1.75a.584.584 0 0 0-.584-.584"></path></svg><svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor" viewBox="0 0 19 19" class="rp-switch-appearance__icon rp-switch-appearance__icon--moon"><path fill="currentColor" d="M9.166 0a9.2 9.2 0 0 1 1.857.188.834.834 0 0 1 .042 1.623 4.47 4.47 0 1 0 5.457 5.457l.048-.135a.834.834 0 0 1 1.575.177q.186.902.188 1.856A9.168 9.168 0 1 1 9.166 0"></path></svg></div><div class="rp-social-links"><a href="https://github.com/xSeek-Neo" target="_blank" rel="noopener noreferrer" class="rp-social-links__item"><div class="rp-social-links__icon"><div class="rp-social-links__icon"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 24 24"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12c0 5.303 3.438 9.8 8.205 11.385c.6.113.82-.258.82-.577c0-.285-.01-1.04-.015-2.04c-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729c1.205.084 1.838 1.236 1.838 1.236c1.07 1.835 2.809 1.305 3.495.998c.108-.776.417-1.305.76-1.605c-2.665-.3-5.466-1.332-5.466-5.93c0-1.31.465-2.38 1.235-3.22c-.135-.303-.54-1.523.105-3.176c0 0 1.005-.322 3.3 1.23c.96-.267 1.98-.399 3-.405c1.02.006 2.04.138 3 .405c2.28-1.552 3.285-1.23 3.285-1.23c.645 1.653.24 2.873.12 3.176c.765.84 1.23 1.91 1.23 3.22c0 4.61-2.805 5.625-5.475 5.92c.42.36.81 1.096.81 2.22c0 1.606-.015 2.896-.015 3.286c0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></div></div></a><ul class="rp-hover-group rp-hover-group--hidden rp-hover-group--right"></ul></div></div><button aria-label="mobile hamburger" class="rp-nav-hamburger rp-nav-hamburger__sm"><svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" fill="none" viewBox="0 0 21 21"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.667" d="M3.645 5.225h13.333M3.645 10.225h13.333M3.645 15.225h13.333"></path></svg></button><button aria-label="mobile hamburger" class="rp-nav-hamburger rp-nav-hamburger__md"><svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" fill="none" viewBox="0 0 21 21"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.667" d="M3.645 5.225h13.333M3.645 10.225h13.333M3.645 15.225h13.333"></path></svg><ul class="rp-hover-group rp-hover-group--hidden rp-hover-group--right"><div class="rp-nav-menu__others-mobile__container"><div class="rp-nav-hamburger__md__hover-group"><div class="rp-nav-screen-appearance"><div class="rp-nav-screen-appearance__left">主题</div><div class="rp-nav-screen-appearance__right"></div></div><div class="rp-nav-screen-divider"></div><div class="rp-social-links"><a href="https://github.com/xSeek-Neo" target="_blank" rel="noopener noreferrer" class="rp-social-links__item"><div class="rp-social-links__icon"><div class="rp-social-links__icon"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 24 24"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12c0 5.303 3.438 9.8 8.205 11.385c.6.113.82-.258.82-.577c0-.285-.01-1.04-.015-2.04c-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729c1.205.084 1.838 1.236 1.838 1.236c1.07 1.835 2.809 1.305 3.495.998c.108-.776.417-1.305.76-1.605c-2.665-.3-5.466-1.332-5.466-5.93c0-1.31.465-2.38 1.235-3.22c-.135-.303-.54-1.523.105-3.176c0 0 1.005-.322 3.3 1.23c.96-.267 1.98-.399 3-.405c1.02.006 2.04.138 3 .405c2.28-1.552 3.285-1.23 3.285-1.23c.645 1.653.24 2.873.12 3.176c.765.84 1.23 1.91 1.23 3.22c0 4.61-2.805 5.625-5.475 5.92c.42.36.81 1.096.81 2.22c0 1.606-.015 2.896-.015 3.286c0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></div></div></a><ul class="rp-hover-group rp-hover-group--hidden rp-hover-group--right"></ul></div></div></div></ul></button></div></header><div class="rp-doc-layout__menu"><div class="rp-sidebar-menu"><button type="button" class="rp-sidebar-menu__left"><svg width="1em" height="1em" viewBox="0 0 32 32"><path fill="currentColor" d="M4 6h24v2H4zm0 18h24v2H4zm0-12h24v2H4zm0 6h24v2H4z"></path></svg><span>菜单</span></button><button type="button" class="rp-sidebar-menu__right"><span class="rp-sidebar-menu__right__text">目录</span><svg width="14" height="14" class="rp-progress-circle"><circle cx="7" cy="7" r="6" stroke-linecap="round" fill="none" stroke="var(--rp-c-divider-light)" stroke-width="2"></circle><circle cx="7" cy="7" r="6" stroke-linecap="round" fill="none" stroke="var(--rp-c-brand)" stroke-width="2" stroke-dasharray="37.69911184307752" stroke-dashoffset="37.69911184307752" transform="rotate(-90 7 7)" style="transition:stroke-dashoffset 0.3s"></circle></svg><svg width="1em" height="1em" viewBox="0 0 32 32" class="rp-sidebar-menu__right__icon" style="transform:rotate(0deg);transition:transform 0.2s ease-out"><path fill="currentColor" d="M22 16 12 26l-1.4-1.4 8.6-8.6-8.6-8.6L12 6z"></path></svg></button></div></div><div class="rp-doc-layout__container"><aside class="rp-doc-layout__sidebar rp-scrollbar"><a href="/docs/A.HTML5.html" class="rp-sidebar-item rp-link" style="padding-left:12px" data-depth="0"><div class="rp-sidebar-item__left"><span class="rp-doc">HTML5</span></div><div class="rp-sidebar-item__right"></div></a><a href="/docs/B.CSS3.html" class="rp-sidebar-item rp-link" style="padding-left:12px" data-depth="0"><div class="rp-sidebar-item__left"><span class="rp-doc">CSS3</span></div><div class="rp-sidebar-item__right"></div></a><a href="/docs/C.ES.html" class="rp-sidebar-item rp-link" style="padding-left:12px" data-depth="0"><div class="rp-sidebar-item__left"><span class="rp-doc">ES基础进阶</span></div><div class="rp-sidebar-item__right"></div></a><a href="/docs/D.异步并发.html" class="rp-sidebar-item rp-link" style="padding-left:12px" data-depth="0"><div class="rp-sidebar-item__left"><span class="rp-doc">异步与并发</span></div><div class="rp-sidebar-item__right"></div></a><a href="/docs/E.浏览器相关.html" class="rp-sidebar-item rp-link" style="padding-left:12px" data-depth="0"><div class="rp-sidebar-item__left"><span class="rp-doc">浏览器相关</span></div><div class="rp-sidebar-item__right"></div></a><a href="/docs/F.框架.VUE.html" class="rp-sidebar-item rp-link" style="padding-left:12px" data-depth="0"><div class="rp-sidebar-item__left"><span class="rp-doc">VUE</span></div><div class="rp-sidebar-item__right"></div></a><a href="/docs/F.框架.REACT.html" class="rp-sidebar-item rp-link" style="padding-left:12px" data-depth="0"><div class="rp-sidebar-item__left"><span class="rp-doc">REACT</span></div><div class="rp-sidebar-item__right"></div></a><a href="/docs/H.性能优化.html" class="rp-sidebar-item rp-link" style="padding-left:12px" data-depth="0"><div class="rp-sidebar-item__left"><span class="rp-doc">性能优化</span></div><div class="rp-sidebar-item__right"></div></a><a href="/docs/S.性能监控.html" class="rp-sidebar-item rp-link" style="padding-left:12px" data-depth="0"><div class="rp-sidebar-item__left"><span class="rp-doc">性能监控SDK</span></div><div class="rp-sidebar-item__right"></div></a><a href="/docs/I.HTTP协议.html" class="rp-sidebar-item rp-sidebar-item--active rp-link" style="padding-left:12px" data-depth="0"><div class="rp-sidebar-item__left"><span class="rp-doc">HTTP协议</span></div><div class="rp-sidebar-item__right"></div></a><a href="/docs/K.综合场景题.html" class="rp-sidebar-item rp-link" style="padding-left:12px" data-depth="0"><div class="rp-sidebar-item__left"><span class="rp-doc">综合场景题</span></div><div class="rp-sidebar-item__right"></div></a><a href="/docs/L.THIS.html" class="rp-sidebar-item rp-link" style="padding-left:12px" data-depth="0"><div class="rp-sidebar-item__left"><span class="rp-doc">THIS</span></div><div class="rp-sidebar-item__right"></div></a><a href="/docs/N.DOM.html" class="rp-sidebar-item rp-link" style="padding-left:12px" data-depth="0"><div class="rp-sidebar-item__left"><span class="rp-doc">DOM</span></div><div class="rp-sidebar-item__right"></div></a><a href="/docs/K.GIT.html" class="rp-sidebar-item rp-link" style="padding-left:12px" data-depth="0"><div class="rp-sidebar-item__left"><span class="rp-doc">GIT常用命令</span></div><div class="rp-sidebar-item__right"></div></a></aside><div class="rp-doc-layout__doc"><main class="rp-doc-layout__doc-container"><div class="rp-doc rspress-doc"><!--$--><h2 class="rp-toc-include" id="http协议"><a href="#http协议" class="rp-header-anchor rp-link" aria-hidden="true">#</a>http协议</h2>
+<h2 class="rp-toc-include" id="同源策略"><a href="#同源策略" class="rp-header-anchor rp-link" aria-hidden="true">#</a>同源策略</h2>
+<p>同源策略可防止 JavaScript 发起跨域请求。同源被定义为 URI、主机名和端口号的组合。此策略可防止页面上的恶意脚本通过该页面的文档对象模型，访问另一个网页上的敏感数据。</p>
+<h2 class="rp-toc-include" id="跨域"><a href="#跨域" class="rp-header-anchor rp-link" aria-hidden="true">#</a>跨域</h2>
+<ul>
+<li>原因
+浏览器的同源策略导致了跨域</li>
+<li>作用
+用于隔离潜在恶意文件的重要安全机制</li>
+<li>解决
+jsonp ，允许 script 加载第三方资源
+反向代理（nginx 服务内部配置 Access-Control-Allow-Origin *）
+cors 前后端协作设置请求头部，Access-Control-Allow-Origin 等头部信息
+iframe 嵌套通讯，postmessage
+三个允许跨域加载资源的标签：img link script</li>
+<li></li>
+</ul>
+<p>跨域是可以发送请求，后端也会正常返回结果，只不过这个结果被浏览器拦截了！_
+JSONP _
+CORS _
+websocket _</p>
+<h2 class="rp-toc-include" id="一次完整的http请求所经历的7个步骤"><a href="#一次完整的http请求所经历的7个步骤" class="rp-header-anchor rp-link" aria-hidden="true">#</a>一次完整的HTTP请求所经历的7个步骤</h2>
+<div class="rp-codeblock language-txt"><div class="rp-codeblock__content"><div class="rp-codeblock__content__scroll-container rp-scrollbar rp-scrollbar--always"><pre class="shiki css-variables" style="background-color:var(--shiki-background);color:var(--shiki-foreground)" tabindex="0" data-lang="txt"><code><span class="line"><span>HTTP通信机制是在一次完整的HTTP通信过程中，Web浏览器与Web服务器之间将完成下列7个步骤：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>建立TCP连接</span></span>
+<span class="line"><span>在HTTP工作开始之前，Web浏览器首先要通过网络与Web服务器建立连接，该连接是通过TCP来完成的，该协议与IP协议共同构建 Internet，即著名的TCP/IP协议族，因此Internet又被称作是TCP/IP网络。HTTP是比TCP更高层次的应用层协议，根据规则， 只有低层协议建立之后才能，才能进行更层协议的连接，因此，首先要建立TCP连接，一般TCP连接的端口号是80。</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Web浏览器向Web服务器发送请求行</span></span>
+<span class="line"><span>一旦建立了TCP连接，Web浏览器就会向Web服务器发送请求命令。例如：GET /sample/hello.jsp HTTP/1.1。</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Web浏览器发送请求头</span></span>
+<span class="line"><span>浏览器发送其请求命令之后，还要以头信息的形式向Web服务器发送一些别的信息，之后浏览器发送了一空白行来通知服务器，它已经结束了该头信息的发送。</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Web服务器应答</span></span>
+<span class="line"><span>客户机向服务器发出请求后，服务器会客户机回送应答， HTTP/1.1 200 OK ，应答的第一部分是协议的版本号和应答状态码。</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Web服务器发送应答头</span></span>
+<span class="line"><span>正如客户端会随同请求发送关于自身的信息一样，服务器也会随同应答向用户发送关于它自己的数据及被请求的文档。</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Web服务器向浏览器发送数据</span></span>
+<span class="line"><span>Web服务器向浏览器发送头信息后，它会发送一个空白行来表示头信息的发送到此为结束，接着，它就以Content-Type应答头信息所描述的格式发送用户所请求的实际数据。</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Web服务器关闭TCP连接</span></span>
+<span class="line"><span>一般情况下，一旦Web服务器向浏览器发送了请求数据，它就要关闭TCP连接，然后如果浏览器或者服务器在其头信息加入了这行代码：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Connection:keep-alive</span></span>
+<span class="line"><span>TCP连接在发送后将仍然保持打开状态，于是，浏览器可以继续通过相同的连接发送请求。保持连接节省了为每个请求建立新连接所需的时间，还节约了网络带宽。</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>建立TCP连接-&gt;发送请求行-&gt;发送请求头-&gt;（到达服务器）发送状态行-&gt;发送响应头-&gt;发送响应数据-&gt;断TCP连接</span></span></code></pre></div><div class="rp-code-button-group"><button class="rp-code-button-group__button rp-code-wrap-button" title="切换代码换行" aria-label="切换代码换行"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-button-group__icon--wrapped"><path fill="currentColor" d="M21 5H3v2h18zM3 19h7v-2H3zm0-6h15c1 0 2 .43 2 2s-1 2-2 2h-2v-2l-4 3 4 3v-2h2c2.95 0 4-1.27 4-4 0-2.72-1-4-4-4H3z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-button-group__icon--wrap"><path fill="currentColor" d="M16 7H3V5h13zM3 19h13v-2H3zm19-7-4-3v2H3v2h15v2z"></path></svg></button><button class="rp-code-button-group__button rp-code-copy-button" title="复制代码"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-copy-button__icon rp-code-copy-button__icon--copy"><path fill="currentColor" d="M20 8v12H8V8zm0-2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2"></path><path fill="currentColor" d="M4 16H2V4a2 2 0 0 1 2-2h12v2H4Z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-copy-button__icon rp-code-copy-button__icon--success"><path fill="currentColor" d="m9.55 18-5.7-5.7 1.425-1.425L9.55 15.15l9.175-9.175L20.15 7.4z"></path></svg></button></div></div></div>
+<h2 class="rp-toc-include" id="web安全加上原理"><a href="#web安全加上原理" class="rp-header-anchor rp-link" aria-hidden="true">#</a>Web安全(加上原理)</h2>
+<p>你所了解到的Web攻击技术
+（1）XSS（Cross-Site Scripting，跨站脚本攻击）：指通过存在安全漏洞的Web网站注册用户的浏览器内运行非法的HTML标签或者JavaScript进行的一种攻击。
+（2）SQL注入攻击
+（3）CSRF（Cross-Site Request Forgeries，跨站点请求伪造）：指攻击者通过设置好的陷阱，强制对已完成的认证用户进行非预期的个人信息或设定信息等某些状态更新。</p>
+<h2 class="rp-toc-include" id="跨域-1"><a href="#跨域-1" class="rp-header-anchor rp-link" aria-hidden="true">#</a>跨域</h2>
+<ul>
+<li>原因
+浏览器的同源策略导致了跨域</li>
+<li>作用
+用于隔离潜在恶意文件的重要安全机制</li>
+<li>解决
+::: tip 解决方案
+jsonp ，允许 script 加载第三方资源</li>
+</ul>
+<p>反向代理（nginx 服务内部配置 Access-Control-Allow-Origin *）</p>
+<p>cors 前后端协作设置请求头部，Access-Control-Allow-Origin 等头部信息</p>
+<p>iframe 嵌套通讯，postmessage
+:::</p>
+<h2 class="rp-toc-include" id="dns解析过程"><a href="#dns解析过程" class="rp-header-anchor rp-link" aria-hidden="true">#</a>DNS解析过程</h2>
+<p><a href="https://cloud.tencent.com/developer/news/324975" target="_blank" rel="noopener noreferrer" class="rp-link">DNS解析过程</a></p>
+<h2 class="rp-toc-include" id="内存泄漏"><a href="#内存泄漏" class="rp-header-anchor rp-link" aria-hidden="true">#</a>内存泄漏</h2>
+<p><a href="http://www.ruanyifeng.com/blog/2017/04/memory-leak.html" target="_blank" rel="noopener noreferrer" class="rp-link">内存泄漏</a></p>
+<h3 class="rp-toc-include" id="axios下载文件流处理"><a href="#axios下载文件流处理" class="rp-header-anchor rp-link" aria-hidden="true">#</a>Axios下载文件流处理</h3>
+<div class="rp-codeblock language-txt"><div class="rp-codeblock__content"><div class="rp-codeblock__content__scroll-container rp-scrollbar rp-scrollbar--always"><pre class="shiki css-variables" style="background-color:var(--shiki-background);color:var(--shiki-foreground)" tabindex="0" data-lang="txt"><code><span class="line"><span>axios({</span></span>
+<span class="line"><span>  url: ``,</span></span>
+<span class="line"><span>  method: &quot;post&quot;,</span></span>
+<span class="line"><span>  responseType: &#x27;blob&#x27;,</span></span>
+<span class="line"><span>  data</span></span>
+<span class="line"><span>}).then(res =&gt; {</span></span>
+<span class="line"><span>  if(res.status !== 200) {</span></span>
+<span class="line"><span>    return this.$message.error(res.statusText)</span></span>
+<span class="line"><span>  } else {</span></span>
+<span class="line"><span>    const elink = document.createElement(&#x27;a&#x27;); // 创建一个a标签用于下载</span></span>
+<span class="line"><span>    elink.download = name; // 规定被下载的超链接目标名（文件名）</span></span>
+<span class="line"><span>    elink.style.display = &#x27;none&#x27;;</span></span>
+<span class="line"><span>    document.body.appendChild(elink);</span></span>
+<span class="line"><span>    elink.click();</span></span>
+<span class="line"><span>    document.body.removeChild(elink);</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}).catch(err =&gt; {</span></span>
+<span class="line"><span>  console.log(err)</span></span>
+<span class="line"><span>})</span></span></code></pre></div><div class="rp-code-button-group"><button class="rp-code-button-group__button rp-code-wrap-button" title="切换代码换行" aria-label="切换代码换行"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-button-group__icon--wrapped"><path fill="currentColor" d="M21 5H3v2h18zM3 19h7v-2H3zm0-6h15c1 0 2 .43 2 2s-1 2-2 2h-2v-2l-4 3 4 3v-2h2c2.95 0 4-1.27 4-4 0-2.72-1-4-4-4H3z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-button-group__icon--wrap"><path fill="currentColor" d="M16 7H3V5h13zM3 19h13v-2H3zm19-7-4-3v2H3v2h15v2z"></path></svg></button><button class="rp-code-button-group__button rp-code-copy-button" title="复制代码"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-copy-button__icon rp-code-copy-button__icon--copy"><path fill="currentColor" d="M20 8v12H8V8zm0-2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2"></path><path fill="currentColor" d="M4 16H2V4a2 2 0 0 1 2-2h12v2H4Z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-copy-button__icon rp-code-copy-button__icon--success"><path fill="currentColor" d="m9.55 18-5.7-5.7 1.425-1.425L9.55 15.15l9.175-9.175L20.15 7.4z"></path></svg></button></div></div></div>
+<h3 class="rp-toc-include" id="统计pv-uv"><a href="#统计pv-uv" class="rp-header-anchor rp-link" aria-hidden="true">#</a>统计pv uv</h3>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon" target="_blank" rel="noopener noreferrer" class="rp-link">navigator.sendBacon</a> 上报埋点数据</p>
+<div class="rp-codeblock language-ts"><div class="rp-codeblock__content"><div class="rp-codeblock__content__scroll-container rp-scrollbar rp-scrollbar--always"><pre class="shiki css-variables" style="background-color:var(--shiki-background);color:var(--shiki-foreground)" tabindex="0" data-lang="ts"><code><span class="line"><span style="color:var(--shiki-token-comment)">// Navigator.sendBeacon(url, blob)</span></span>
+<span class="line"><span style="color:var(--shiki-token-comment)">// 浏览器tab切换 和 最小化浏览器 或 关闭窗口都是执行下面方法并上报数据</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">document</span><span style="color:var(--shiki-token-function)">.addEventListener</span><span style="color:var(--shiki-foreground)">(</span><span style="color:var(--shiki-token-string-expression)">&#x27;visibilitychange&#x27;</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-token-keyword)"> function</span><span style="color:var(--shiki-foreground)"> () {</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">  if</span><span style="color:var(--shiki-foreground)"> (</span><span style="color:var(--shiki-token-constant)">document</span><span style="color:var(--shiki-foreground)">.visibilityState </span><span style="color:var(--shiki-token-keyword)">===</span><span style="color:var(--shiki-token-string-expression)"> &#x27;hidden&#x27;</span><span style="color:var(--shiki-foreground)">) {</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">    const</span><span style="color:var(--shiki-token-constant)"> header</span><span style="color:var(--shiki-token-keyword)"> =</span><span style="color:var(--shiki-foreground)"> {</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">      type</span><span style="color:var(--shiki-token-keyword)">:</span><span style="color:var(--shiki-token-string-expression)"> &#x27;application/x-www-form-urlencoded&#x27;</span><span style="color:var(--shiki-token-punctuation)">,</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">    }</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">    const</span><span style="color:var(--shiki-token-constant)"> blob</span><span style="color:var(--shiki-token-keyword)"> =</span><span style="color:var(--shiki-token-keyword)"> new</span><span style="color:var(--shiki-token-function)"> Blob</span><span style="color:var(--shiki-foreground)">([</span><span style="color:var(--shiki-token-constant)">JSON</span><span style="color:var(--shiki-token-function)">.stringify</span><span style="color:var(--shiki-foreground)">({ name</span><span style="color:var(--shiki-token-keyword)">:</span><span style="color:var(--shiki-token-string-expression)"> &#x27;Dendi&#x27;</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-foreground)"> age</span><span style="color:var(--shiki-token-keyword)">:</span><span style="color:var(--shiki-token-constant)"> 88</span><span style="color:var(--shiki-foreground)"> })]</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-foreground)"> header)</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">    navigator</span><span style="color:var(--shiki-token-function)">.sendBeacon</span><span style="color:var(--shiki-foreground)">(</span><span style="color:var(--shiki-token-string-expression)">&#x27;http://localhost:5200/tracker&#x27;</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-foreground)"> blob)</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">  }</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">})</span></span></code></pre></div><div class="rp-code-button-group"><button class="rp-code-button-group__button rp-code-wrap-button" title="切换代码换行" aria-label="切换代码换行"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-button-group__icon--wrapped"><path fill="currentColor" d="M21 5H3v2h18zM3 19h7v-2H3zm0-6h15c1 0 2 .43 2 2s-1 2-2 2h-2v-2l-4 3 4 3v-2h2c2.95 0 4-1.27 4-4 0-2.72-1-4-4-4H3z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-button-group__icon--wrap"><path fill="currentColor" d="M16 7H3V5h13zM3 19h13v-2H3zm19-7-4-3v2H3v2h15v2z"></path></svg></button><button class="rp-code-button-group__button rp-code-copy-button" title="复制代码"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-copy-button__icon rp-code-copy-button__icon--copy"><path fill="currentColor" d="M20 8v12H8V8zm0-2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2"></path><path fill="currentColor" d="M4 16H2V4a2 2 0 0 1 2-2h12v2H4Z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-copy-button__icon rp-code-copy-button__icon--success"><path fill="currentColor" d="m9.55 18-5.7-5.7 1.425-1.425L9.55 15.15l9.175-9.175L20.15 7.4z"></path></svg></button></div></div></div>
+<h3 class="rp-toc-include" id="重写浏览器的方法-pushstate-和-replacestate"><a href="#重写浏览器的方法-pushstate-和-replacestate" class="rp-header-anchor rp-link" aria-hidden="true">#</a>重写浏览器的方法 pushState 和 replaceState</h3>
+<div class="rp-codeblock language-ts"><div class="rp-codeblock__content"><div class="rp-codeblock__content__scroll-container rp-scrollbar rp-scrollbar--always"><pre class="shiki css-variables" style="background-color:var(--shiki-background);color:var(--shiki-foreground)" tabindex="0" data-lang="ts"><code><span class="line"><span style="color:var(--shiki-token-keyword)">export</span><span style="color:var(--shiki-token-keyword)"> const</span><span style="color:var(--shiki-token-function)"> createHistoryEvent</span><span style="color:var(--shiki-token-keyword)"> =</span><span style="color:var(--shiki-foreground)"> &lt;</span><span style="color:var(--shiki-token-function)">T</span><span style="color:var(--shiki-token-keyword)"> extends</span><span style="color:var(--shiki-token-keyword)"> keyof</span><span style="color:var(--shiki-token-function)"> History</span><span style="color:var(--shiki-foreground)">&gt;(type</span><span style="color:var(--shiki-token-keyword)">:</span><span style="color:var(--shiki-token-function)"> T</span><span style="color:var(--shiki-foreground)">) </span><span style="color:var(--shiki-token-keyword)">=&gt;</span><span style="color:var(--shiki-foreground)"> {</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">    const</span><span style="color:var(--shiki-token-constant)"> historyEvent</span><span style="color:var(--shiki-token-keyword)"> =</span><span style="color:var(--shiki-foreground)"> history[type]</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">    return</span><span style="color:var(--shiki-token-keyword)"> function</span><span style="color:var(--shiki-foreground)"> () {</span></span>
+<span class="line"><span style="color:var(--shiki-token-comment)">        // 调用原生事件</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">        historyEvent</span><span style="color:var(--shiki-token-function)">.apply</span><span style="color:var(--shiki-foreground)">(</span><span style="color:var(--shiki-token-constant)">this</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-foreground)"> arguments)</span></span>
+<span class="line"><span style="color:var(--shiki-token-comment)">        // 创建新事件 dispatch事件</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">        const</span><span style="color:var(--shiki-token-constant)"> e</span><span style="color:var(--shiki-token-keyword)"> =</span><span style="color:var(--shiki-token-keyword)"> new</span><span style="color:var(--shiki-token-function)"> Event</span><span style="color:var(--shiki-foreground)">(type)</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">        window</span><span style="color:var(--shiki-token-function)">.dispatchEvent</span><span style="color:var(--shiki-foreground)">(e)</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">    }</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">window</span><span style="color:var(--shiki-foreground)">.history[</span><span style="color:var(--shiki-token-string-expression)">&#x27;pushState&#x27;</span><span style="color:var(--shiki-foreground)">] </span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-token-function)"> createHistoryEvent</span><span style="color:var(--shiki-foreground)">(</span><span style="color:var(--shiki-token-string-expression)">&#x27;pushState&#x27;</span><span style="color:var(--shiki-foreground)">)</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">window</span><span style="color:var(--shiki-foreground)">.history[</span><span style="color:var(--shiki-token-string-expression)">&#x27;replaceState&#x27;</span><span style="color:var(--shiki-foreground)">] </span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-token-function)"> createHistoryEvent</span><span style="color:var(--shiki-foreground)">(</span><span style="color:var(--shiki-token-string-expression)">&#x27;replaceState&#x27;</span><span style="color:var(--shiki-foreground)">)</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--shiki-token-comment)">// 跳转自动上报</span></span>
+<span class="line"><span style="color:var(--shiki-token-function)">captureEvents</span><span style="color:var(--shiki-foreground)">(mouseEventList</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">:</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">string[]</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">)</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">{</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">    mouseEventList</span><span style="color:var(--shiki-token-function)">.forEach</span><span style="color:var(--shiki-foreground)">(event </span><span style="color:var(--shiki-token-keyword)">=&gt;</span><span style="color:var(--shiki-token-constant)"> window</span><span style="color:var(--shiki-token-function)">.addEventListener</span><span style="color:var(--shiki-foreground)">(event</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-foreground)"> () </span><span style="color:var(--shiki-token-keyword)">=&gt;</span><span style="color:var(--shiki-foreground)"> {</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">        console</span><span style="color:var(--shiki-token-function)">.log</span><span style="color:var(--shiki-foreground)">(</span><span style="color:var(--shiki-token-string-expression)">&#x27;路由跳转上报&#x27;</span><span style="color:var(--shiki-foreground)">)</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">    }))</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">function</span><span style="color:var(--shiki-token-function)"> installTracker</span><span style="color:var(--shiki-foreground)">() {</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">    if</span><span style="color:var(--shiki-foreground)"> (</span><span style="color:var(--shiki-token-constant)">this</span><span style="color:var(--shiki-foreground)">.</span><span style="color:var(--shiki-token-constant)">data</span><span style="color:var(--shiki-foreground)">.historyTracker) {</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">        this</span><span style="color:var(--shiki-token-function)">.captureEvents</span><span style="color:var(--shiki-foreground)">([</span><span style="color:var(--shiki-token-string-expression)">&#x27;pushState&#x27;</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-token-string-expression)"> &#x27;replaceState&#x27;</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-token-string-expression)"> &#x27;popstate&#x27;</span><span style="color:var(--shiki-foreground)">]</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-foreground)">)</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">    }</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">    if</span><span style="color:var(--shiki-foreground)"> (</span><span style="color:var(--shiki-token-constant)">this</span><span style="color:var(--shiki-foreground)">.</span><span style="color:var(--shiki-token-constant)">data</span><span style="color:var(--shiki-foreground)">.hashTracker) {</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">        this</span><span style="color:var(--shiki-token-function)">.captureEvents</span><span style="color:var(--shiki-foreground)">([</span><span style="color:var(--shiki-token-string-expression)">&#x27;hashchange&#x27;</span><span style="color:var(--shiki-foreground)">]</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-token-string-expression)"> &#x27;hash-pv&#x27;</span><span style="color:var(--shiki-foreground)">)</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">    }</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">}</span></span></code></pre></div><div class="rp-code-button-group"><button class="rp-code-button-group__button rp-code-wrap-button" title="切换代码换行" aria-label="切换代码换行"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-button-group__icon--wrapped"><path fill="currentColor" d="M21 5H3v2h18zM3 19h7v-2H3zm0-6h15c1 0 2 .43 2 2s-1 2-2 2h-2v-2l-4 3 4 3v-2h2c2.95 0 4-1.27 4-4 0-2.72-1-4-4-4H3z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-button-group__icon--wrap"><path fill="currentColor" d="M16 7H3V5h13zM3 19h13v-2H3zm19-7-4-3v2H3v2h15v2z"></path></svg></button><button class="rp-code-button-group__button rp-code-copy-button" title="复制代码"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-copy-button__icon rp-code-copy-button__icon--copy"><path fill="currentColor" d="M20 8v12H8V8zm0-2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2"></path><path fill="currentColor" d="M4 16H2V4a2 2 0 0 1 2-2h12v2H4Z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-copy-button__icon rp-code-copy-button__icon--success"><path fill="currentColor" d="m9.55 18-5.7-5.7 1.425-1.425L9.55 15.15l9.175-9.175L20.15 7.4z"></path></svg></button></div></div></div>
+<h3 class="rp-toc-include" id="监听元素是否在页面中"><a href="#监听元素是否在页面中" class="rp-header-anchor rp-link" aria-hidden="true">#</a>监听元素是否在页面中</h3>
+<p><a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Intersection_Observer_API" target="_blank" rel="noopener noreferrer" class="rp-link">intersection Observer</a></p>
+<div class="rp-codeblock language-html"><div class="rp-codeblock__content"><div class="rp-codeblock__content__scroll-container rp-scrollbar rp-scrollbar--always"><pre class="shiki css-variables" style="background-color:var(--shiki-background);color:var(--shiki-foreground)" tabindex="0" data-lang="html"><code><span class="line"><span style="color:var(--shiki-foreground)">&lt;!</span><span style="color:var(--shiki-token-string-expression)">DOCTYPE</span><span style="color:var(--shiki-token-function)"> html</span><span style="color:var(--shiki-foreground)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">&lt;</span><span style="color:var(--shiki-token-string-expression)">html</span><span style="color:var(--shiki-token-function)"> lang</span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-token-string-expression)">&quot;en&quot;</span><span style="color:var(--shiki-foreground)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">  &lt;</span><span style="color:var(--shiki-token-string-expression)">head</span><span style="color:var(--shiki-foreground)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">    &lt;</span><span style="color:var(--shiki-token-string-expression)">meta</span><span style="color:var(--shiki-token-function)"> charset</span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-token-string-expression)">&quot;UTF-8&quot;</span><span style="color:var(--shiki-foreground)"> /&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">    &lt;</span><span style="color:var(--shiki-token-string-expression)">meta</span><span style="color:var(--shiki-token-function)"> name</span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-token-string-expression)">&quot;viewport&quot;</span><span style="color:var(--shiki-token-function)"> content</span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-token-string-expression)">&quot;width=device-width, initial-scale=1.0&quot;</span><span style="color:var(--shiki-foreground)"> /&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">    &lt;</span><span style="color:var(--shiki-token-string-expression)">title</span><span style="color:var(--shiki-foreground)">&gt;Document&lt;/</span><span style="color:var(--shiki-token-string-expression)">title</span><span style="color:var(--shiki-foreground)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">    &lt;</span><span style="color:var(--shiki-token-string-expression)">style</span><span style="color:var(--shiki-foreground)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-token-string-expression)">      html</span><span style="color:var(--shiki-token-punctuation)">,</span></span>
+<span class="line"><span style="color:var(--shiki-token-string-expression)">      body</span><span style="color:var(--shiki-foreground)"> {</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">        margin</span><span style="color:var(--shiki-token-keyword)">:</span><span style="color:var(--shiki-token-constant)"> 0</span><span style="color:var(--shiki-foreground)">;</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">      }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--shiki-token-string-expression)">      ul</span><span style="color:var(--shiki-token-function)">.main</span><span style="color:var(--shiki-foreground)"> {</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">        list-style</span><span style="color:var(--shiki-token-keyword)">:</span><span style="color:var(--shiki-token-constant)"> none</span><span style="color:var(--shiki-foreground)">;</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">        margin</span><span style="color:var(--shiki-token-keyword)">:</span><span style="color:var(--shiki-token-constant)"> 0</span><span style="color:var(--shiki-foreground)">;</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">        padding</span><span style="color:var(--shiki-token-keyword)">:</span><span style="color:var(--shiki-token-constant)"> 0</span><span style="color:var(--shiki-foreground)">;</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">        height</span><span style="color:var(--shiki-token-keyword)">:</span><span style="color:var(--shiki-token-constant)"> 100</span><span style="color:var(--shiki-token-keyword)">vh</span><span style="color:var(--shiki-foreground)">;</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">        overflow-y</span><span style="color:var(--shiki-token-keyword)">:</span><span style="color:var(--shiki-token-constant)"> scroll</span><span style="color:var(--shiki-foreground)">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--shiki-foreground)">        .</span><span style="color:var(--shiki-token-constant)">list-item</span><span style="color:var(--shiki-foreground)"> {</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">          margin</span><span style="color:var(--shiki-token-keyword)">:</span><span style="color:var(--shiki-token-constant)"> 20</span><span style="color:var(--shiki-token-keyword)">px</span><span style="color:var(--shiki-token-constant)"> 0</span><span style="color:var(--shiki-foreground)">;</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">          height</span><span style="color:var(--shiki-token-keyword)">:</span><span style="color:var(--shiki-token-constant)"> 80</span><span style="color:var(--shiki-token-keyword)">px</span><span style="color:var(--shiki-foreground)">;</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">          display</span><span style="color:var(--shiki-token-keyword)">:</span><span style="color:var(--shiki-token-constant)"> flex</span><span style="color:var(--shiki-foreground)">;</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">          justify-content</span><span style="color:var(--shiki-token-keyword)">:</span><span style="color:var(--shiki-token-constant)"> center</span><span style="color:var(--shiki-foreground)">;</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">          align-items</span><span style="color:var(--shiki-token-keyword)">:</span><span style="color:var(--shiki-token-constant)"> center</span><span style="color:var(--shiki-foreground)">;</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">          background-color</span><span style="color:var(--shiki-token-keyword)">:</span><span style="color:var(--shiki-token-constant)"> antiquewhite</span><span style="color:var(--shiki-foreground)">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--shiki-foreground)">          .</span><span style="color:var(--shiki-token-constant)">img</span><span style="color:var(--shiki-foreground)"> {</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">            margin-right</span><span style="color:var(--shiki-token-keyword)">:</span><span style="color:var(--shiki-token-constant)"> 80</span><span style="color:var(--shiki-token-keyword)">px</span><span style="color:var(--shiki-foreground)">;</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">          }</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">        }</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">      }</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">    &lt;/</span><span style="color:var(--shiki-token-string-expression)">style</span><span style="color:var(--shiki-foreground)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">  &lt;/</span><span style="color:var(--shiki-token-string-expression)">head</span><span style="color:var(--shiki-foreground)">&gt;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--shiki-foreground)">  &lt;</span><span style="color:var(--shiki-token-string-expression)">body</span><span style="color:var(--shiki-foreground)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">    &lt;</span><span style="color:var(--shiki-token-string-expression)">ul</span><span style="color:var(--shiki-token-function)"> class</span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-token-string-expression)">&quot;main&quot;</span><span style="color:var(--shiki-foreground)">&gt;&lt;/</span><span style="color:var(--shiki-token-string-expression)">ul</span><span style="color:var(--shiki-foreground)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">    &lt;</span><span style="color:var(--shiki-token-string-expression)">script</span><span style="color:var(--shiki-token-function)"> lang</span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-token-string-expression)">&quot;ts&quot;</span><span style="color:var(--shiki-foreground)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">      window</span><span style="color:var(--shiki-foreground)">.</span><span style="color:var(--shiki-token-function)">onload</span><span style="color:var(--shiki-token-keyword)"> =</span><span style="color:var(--shiki-foreground)"> () </span><span style="color:var(--shiki-token-keyword)">=&gt;</span><span style="color:var(--shiki-foreground)"> {</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">        const</span><span style="color:var(--shiki-token-constant)"> mainEl</span><span style="color:var(--shiki-token-keyword)"> =</span><span style="color:var(--shiki-token-constant)"> document</span><span style="color:var(--shiki-token-function)">.querySelector</span><span style="color:var(--shiki-foreground)">(</span><span style="color:var(--shiki-token-string-expression)">&#x27;.main&#x27;</span><span style="color:var(--shiki-foreground)">)</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">        const</span><span style="color:var(--shiki-token-constant)"> list</span><span style="color:var(--shiki-token-keyword)"> =</span><span style="color:var(--shiki-token-keyword)"> new</span><span style="color:var(--shiki-token-function)"> Array</span><span style="color:var(--shiki-foreground)">(</span><span style="color:var(--shiki-token-constant)">50</span><span style="color:var(--shiki-foreground)">)</span><span style="color:var(--shiki-token-function)">.fill</span><span style="color:var(--shiki-foreground)">(</span><span style="color:var(--shiki-token-string-expression)">&#x27; &#x27;</span><span style="color:var(--shiki-foreground)">)</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">        const</span><span style="color:var(--shiki-token-constant)"> fragment</span><span style="color:var(--shiki-token-keyword)"> =</span><span style="color:var(--shiki-token-constant)"> document</span><span style="color:var(--shiki-token-function)">.createDocumentFragment</span><span style="color:var(--shiki-foreground)">()</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">        const</span><span style="color:var(--shiki-token-function)"> getLiEl</span><span style="color:var(--shiki-token-keyword)"> =</span><span style="color:var(--shiki-foreground)"> (_</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-foreground)"> index) </span><span style="color:var(--shiki-token-keyword)">=&gt;</span><span style="color:var(--shiki-foreground)"> {</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">          const</span><span style="color:var(--shiki-token-constant)"> liEl</span><span style="color:var(--shiki-token-keyword)"> =</span><span style="color:var(--shiki-token-constant)"> document</span><span style="color:var(--shiki-token-function)">.createElement</span><span style="color:var(--shiki-foreground)">(</span><span style="color:var(--shiki-token-string-expression)">&#x27;li&#x27;</span><span style="color:var(--shiki-foreground)">)</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">          liEl</span><span style="color:var(--shiki-foreground)">.innerHTML </span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-token-string-expression)"> `&lt;img class=&quot;img&quot; style=&quot;height: 80px&quot;&gt;&lt;/img&gt;&lt;span&gt;</span><span style="color:var(--shiki-token-keyword)">${</span><span style="color:var(--shiki-foreground)">index </span><span style="color:var(--shiki-token-keyword)">+</span><span style="color:var(--shiki-token-constant)"> 1</span><span style="color:var(--shiki-token-keyword)">}</span><span style="color:var(--shiki-token-string-expression)">&lt;/span&gt;`</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">          liEl</span><span style="color:var(--shiki-foreground)">.</span><span style="color:var(--shiki-token-constant)">style</span><span style="color:var(--shiki-foreground)">.cssText </span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-token-string-expression)"> `color: red; font-weight: bold; font-size: 24px`</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">          liEl</span><span style="color:var(--shiki-foreground)">.className </span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-token-string-expression)"> &#x27;list-item&#x27;</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">          liEl</span><span style="color:var(--shiki-token-function)">.setAttribute</span><span style="color:var(--shiki-foreground)">(</span></span>
+<span class="line"><span style="color:var(--shiki-token-string-expression)">            &#x27;src&#x27;</span><span style="color:var(--shiki-token-punctuation)">,</span></span>
+<span class="line"><span style="color:var(--shiki-token-string-expression)">            &#x27;https://p2.img.cctvpic.com/photoAlbum/page/performance/img/2022/4/1/1648804913581_50.jpg&#x27;</span><span style="color:var(--shiki-token-punctuation)">,</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">          )</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">          liEl</span><span style="color:var(--shiki-token-function)">.setAttribute</span><span style="color:var(--shiki-foreground)">(</span><span style="color:var(--shiki-token-string-expression)">&#x27;index&#x27;</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-foreground)"> index </span><span style="color:var(--shiki-token-keyword)">+</span><span style="color:var(--shiki-token-constant)"> 1</span><span style="color:var(--shiki-foreground)">)</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">          return</span><span style="color:var(--shiki-token-constant)"> fragment</span><span style="color:var(--shiki-token-function)">.appendChild</span><span style="color:var(--shiki-foreground)">(liEl)</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">        }</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">        list</span><span style="color:var(--shiki-token-function)">.forEach</span><span style="color:var(--shiki-foreground)">(getLiEl)</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">        mainEl</span><span style="color:var(--shiki-token-function)">.append</span><span style="color:var(--shiki-foreground)">(fragment)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">        let</span><span style="color:var(--shiki-foreground)"> options </span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-foreground)"> {</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">          root</span><span style="color:var(--shiki-token-keyword)">:</span><span style="color:var(--shiki-token-constant)"> document</span><span style="color:var(--shiki-token-function)">.querySelector</span><span style="color:var(--shiki-foreground)">(</span><span style="color:var(--shiki-token-string-expression)">&#x27;.main&#x27;</span><span style="color:var(--shiki-foreground)">)</span><span style="color:var(--shiki-token-punctuation)">,</span></span>
+<span class="line"><span style="color:var(--shiki-token-comment)">          // 预先加载 list-item: 上下margin 20, 本身高度80 = 120px 预先加载5 600px = 120px * 5</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">          rootMargin</span><span style="color:var(--shiki-token-keyword)">:</span><span style="color:var(--shiki-token-string-expression)"> &#x27;0px 0px 600px 0px&#x27;</span><span style="color:var(--shiki-token-punctuation)">,</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">          threshold</span><span style="color:var(--shiki-token-keyword)">:</span><span style="color:var(--shiki-token-constant)"> 0.5</span><span style="color:var(--shiki-token-punctuation)">,</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">        const</span><span style="color:var(--shiki-token-function)"> callback</span><span style="color:var(--shiki-token-keyword)"> =</span><span style="color:var(--shiki-foreground)"> (entries</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-foreground)"> io) </span><span style="color:var(--shiki-token-keyword)">=&gt;</span><span style="color:var(--shiki-foreground)"> {</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">          entries</span><span style="color:var(--shiki-token-function)">.forEach</span><span style="color:var(--shiki-foreground)">(({ target</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-foreground)"> isIntersecting }) </span><span style="color:var(--shiki-token-keyword)">=&gt;</span><span style="color:var(--shiki-foreground)"> {</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">            if</span><span style="color:var(--shiki-foreground)"> (isIntersecting) {</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">              const</span><span style="color:var(--shiki-token-constant)"> index</span><span style="color:var(--shiki-token-keyword)"> =</span><span style="color:var(--shiki-token-constant)"> target</span><span style="color:var(--shiki-token-function)">.getAttribute</span><span style="color:var(--shiki-foreground)">(</span><span style="color:var(--shiki-token-string-expression)">&#x27;index&#x27;</span><span style="color:var(--shiki-foreground)">) </span><span style="color:var(--shiki-token-keyword)">*</span><span style="color:var(--shiki-token-constant)"> 1</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">              const</span><span style="color:var(--shiki-token-constant)"> imgUri</span><span style="color:var(--shiki-token-keyword)"> =</span><span style="color:var(--shiki-token-constant)"> target</span><span style="color:var(--shiki-token-function)">.getAttribute</span><span style="color:var(--shiki-foreground)">(</span><span style="color:var(--shiki-token-string-expression)">&#x27;src&#x27;</span><span style="color:var(--shiki-foreground)">)</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">              const</span><span style="color:var(--shiki-token-constant)"> img</span><span style="color:var(--shiki-token-keyword)"> =</span><span style="color:var(--shiki-token-constant)"> target</span><span style="color:var(--shiki-token-function)">.querySelector</span><span style="color:var(--shiki-foreground)">(</span><span style="color:var(--shiki-token-string-expression)">&#x27;.img&#x27;</span><span style="color:var(--shiki-foreground)">)</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">              img</span><span style="color:var(--shiki-token-function)">.setAttribute</span><span style="color:var(--shiki-foreground)">(</span><span style="color:var(--shiki-token-string-expression)">&#x27;src&#x27;</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-foreground)"> imgUri)</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">              target</span><span style="color:var(--shiki-token-function)">.removeAttribute</span><span style="color:var(--shiki-foreground)">(</span><span style="color:var(--shiki-token-string-expression)">&#x27;src&#x27;</span><span style="color:var(--shiki-foreground)">)</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">              target</span><span style="color:var(--shiki-token-function)">.removeAttribute</span><span style="color:var(--shiki-foreground)">(</span><span style="color:var(--shiki-token-string-expression)">&#x27;index&#x27;</span><span style="color:var(--shiki-foreground)">)</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">              console</span><span style="color:var(--shiki-token-function)">.log</span><span style="color:var(--shiki-foreground)">(index)</span></span>
+<span class="line"><span style="color:var(--shiki-token-comment)">              // 停止观察</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">              io</span><span style="color:var(--shiki-token-function)">.unobserve</span><span style="color:var(--shiki-foreground)">(target)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--shiki-token-comment)">              // 关闭观察器</span></span>
+<span class="line"><span style="color:var(--shiki-token-comment)">              // io.disconnect()</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">            }</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">          })</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">        let</span><span style="color:var(--shiki-foreground)"> observer </span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-token-keyword)"> new</span><span style="color:var(--shiki-token-function)"> IntersectionObserver</span><span style="color:var(--shiki-foreground)">(callback</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-foreground)"> options)</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">        const</span><span style="color:var(--shiki-token-constant)"> liEls</span><span style="color:var(--shiki-token-keyword)"> =</span><span style="color:var(--shiki-token-constant)"> document</span><span style="color:var(--shiki-token-function)">.querySelectorAll</span><span style="color:var(--shiki-foreground)">(</span><span style="color:var(--shiki-token-string-expression)">&#x27;.list-item&#x27;</span><span style="color:var(--shiki-foreground)">)</span></span>
+<span class="line"><span style="color:var(--shiki-token-comment)">        // 开始监听</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">        liEls</span><span style="color:var(--shiki-token-function)">.forEach</span><span style="color:var(--shiki-foreground)">((li) </span><span style="color:var(--shiki-token-keyword)">=&gt;</span><span style="color:var(--shiki-foreground)"> {</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">          observer</span><span style="color:var(--shiki-token-function)">.observe</span><span style="color:var(--shiki-foreground)">(li)</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">        })</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">      }</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">    &lt;/</span><span style="color:var(--shiki-token-string-expression)">script</span><span style="color:var(--shiki-foreground)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">  &lt;/</span><span style="color:var(--shiki-token-string-expression)">body</span><span style="color:var(--shiki-foreground)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">&lt;/</span><span style="color:var(--shiki-token-string-expression)">html</span><span style="color:var(--shiki-foreground)">&gt;</span></span></code></pre></div><div class="rp-code-button-group"><button class="rp-code-button-group__button rp-code-wrap-button" title="切换代码换行" aria-label="切换代码换行"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-button-group__icon--wrapped"><path fill="currentColor" d="M21 5H3v2h18zM3 19h7v-2H3zm0-6h15c1 0 2 .43 2 2s-1 2-2 2h-2v-2l-4 3 4 3v-2h2c2.95 0 4-1.27 4-4 0-2.72-1-4-4-4H3z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-button-group__icon--wrap"><path fill="currentColor" d="M16 7H3V5h13zM3 19h13v-2H3zm19-7-4-3v2H3v2h15v2z"></path></svg></button><button class="rp-code-button-group__button rp-code-copy-button" title="复制代码"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-copy-button__icon rp-code-copy-button__icon--copy"><path fill="currentColor" d="M20 8v12H8V8zm0-2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2"></path><path fill="currentColor" d="M4 16H2V4a2 2 0 0 1 2-2h12v2H4Z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-copy-button__icon rp-code-copy-button__icon--success"><path fill="currentColor" d="m9.55 18-5.7-5.7 1.425-1.425L9.55 15.15l9.175-9.175L20.15 7.4z"></path></svg></button></div></div></div>
+<h2 class="rp-toc-include" id="get和post有什么区别"><a href="#get和post有什么区别" class="rp-header-anchor rp-link" aria-hidden="true">#</a>get和post有什么区别</h2>
+<ul>
+<li>1.get一般是获取数据，post一般是提交数据</li>
+<li>2.get参数会放在url上，所以安全性比较差，post是放在body中</li>
+<li>3.get请求刷新服务器或退回是没有影响的，post请求退回时会重新提交数据</li>
+<li>4.get请求时会被缓存,post请求不会被缓存</li>
+<li>5.get请求会被保存在浏览器历史记录中,post不会</li>
+<li>6.get请求只能进行url编码，post请求支持很多种</li>
+</ul>
+<h2 class="rp-toc-include" id="解释一下什么是json"><a href="#解释一下什么是json" class="rp-header-anchor rp-link" aria-hidden="true">#</a>解释一下什么是json</h2>
+<ul>
+<li>JSON是一种纯字符串形式的数据，它本身不提供任何方法，适合在网络中进行传输</li>
+<li>JSON数据存储在.json文件中，也可以把JSON数据以字符串的形式保存在数据库、Cookise中</li>
+<li>JS提供了JSON.parse() JSON.stringify()</li>
+<li>什么时候使用json：定义接口；序列化；生成token；配置文件package.json</li>
+</ul>
+<h2 class="rp-toc-include" id="http协议规定的协议头和请求头有什么"><a href="#http协议规定的协议头和请求头有什么" class="rp-header-anchor rp-link" aria-hidden="true">#</a>HTTP协议规定的协议头和请求头有什么</h2>
+<ul>
+<li>1.请求头信息：</li>
+</ul>
+<ul>
+<li>Accept:浏览器告诉服务器所支持的数据类型</li>
+<li>Host:浏览器告诉服务器我想访问服务器的哪台主机</li>
+<li>Referer:浏览器告诉服务器我是从哪里来的（防盗链）</li>
+<li>User-Agent:浏览器类型、版本信息</li>
+<li>Date:浏览器告诉服务器我是什么时候访问的</li>
+<li>Connection:连接方式</li>
+<li>Cookie</li>
+<li>X-Request-With:请求方式</li>
+</ul>
+<ul>
+<li>2.响应头信息：</li>
+</ul>
+<ul>
+<li>Location:这个就是告诉浏览器你要去找谁</li>
+<li>Server:告诉浏览器服务器的类型</li>
+<li>Content-Type:告诉浏览器返回的数据类型</li>
+<li>Refresh:控制了的定时刷新</li>
+</ul>
+<h1 class="rp-toc-include" id="websocket-心跳检测---面试标准答案"><a href="#websocket-心跳检测---面试标准答案" class="rp-header-anchor rp-link" aria-hidden="true">#</a>WebSocket 心跳检测 - 面试标准答案<!-- --> </h1>
+<h2 class="rp-toc-include" id="-目录"><a href="#-目录" class="rp-header-anchor rp-link" aria-hidden="true">#</a>📋 目录</h2>
+<ul>
+<li><a href="#%E5%BC%80%E5%9C%BA%E7%99%BD" class="rp-link">开场白</a></li>
+<li><a href="#%E6%A0%B8%E5%BF%83%E5%9B%9E%E7%AD%94" class="rp-link">核心回答</a></li>
+<li><a href="#%E5%AE%8C%E6%95%B4%E5%9B%9E%E7%AD%94%E7%A4%BA%E4%BE%8B" class="rp-link">完整回答示例</a></li>
+<li><a href="#%E5%B8%B8%E8%A7%81%E8%BF%BD%E9%97%AE%E5%8F%8A%E5%9B%9E%E7%AD%94" class="rp-link">常见追问及回答</a></li>
+<li><a href="#%E5%9B%9E%E7%AD%94%E8%A6%81%E7%82%B9%E6%80%BB%E7%BB%93" class="rp-link">回答要点总结</a></li>
+</ul>
+<hr/>
+<h2 class="rp-toc-include" id="-开场白30秒"><a href="#-开场白30秒" class="rp-header-anchor rp-link" aria-hidden="true">#</a>🎯 开场白（30秒）</h2>
+<blockquote>
+<p>&quot;心跳检测是 WebSocket 连接保活和故障检测的机制。我在项目中实现过一套完整的心跳机制，包括定时发送、超时检测和自动重连。&quot;</p>
+</blockquote>
+<hr/>
+<h2 class="rp-toc-include" id="-核心回答2-3分钟"><a href="#-核心回答2-3分钟" class="rp-header-anchor rp-link" aria-hidden="true">#</a>💡 核心回答（2-3分钟）</h2>
+<h3 class="rp-toc-include" id="1-为什么需要心跳检测"><a href="#1-为什么需要心跳检测" class="rp-header-anchor rp-link" aria-hidden="true">#</a>1. 为什么需要心跳检测？</h3>
+<p><strong>标准答案：</strong>
+&quot;主要有三个原因：</p>
+<ol>
+<li><strong>检测假连接</strong>：网络层断开但应用层未感知，<code>readyState</code> 仍为 <code>OPEN</code>，需要主动探测</li>
+<li><strong>保持连接活跃</strong>：中间设备（路由器、NAT、防火墙）可能因空闲超时断开长连接</li>
+<li><strong>及时发现故障</strong>：快速发现问题并触发重连，提升用户体验&quot;</li>
+</ol>
+<h3 class="rp-toc-include" id="2-实现方案"><a href="#2-实现方案" class="rp-header-anchor rp-link" aria-hidden="true">#</a>2. 实现方案</h3>
+<p><strong>标准答案：</strong>
+&quot;我采用 <strong>Ping-Pong 机制</strong>：</p>
+<ul>
+<li>客户端每 <strong>10 秒</strong>发送 <code>&#x27;ping&#x27;</code> 字符串</li>
+<li>服务器收到后响应 <code>&#x27;pong&#x27;</code> 字符串</li>
+<li>如果 <strong>30 秒</strong>内没收到 <code>&#x27;pong&#x27;</code>，判定连接异常并关闭，触发自动重连&quot;</li>
+</ul>
+<h3 class="rp-toc-include" id="3-技术细节"><a href="#3-技术细节" class="rp-header-anchor rp-link" aria-hidden="true">#</a>3. 技术细节</h3>
+<p><strong>标准答案：</strong>
+&quot;实现上用了<strong>两个定时器</strong>：</p>
+<ul>
+<li><code>setInterval</code>：定时发送 <code>ping</code>（10 秒间隔）</li>
+<li><code>setTimeout</code>：检测超时（30 秒超时）</li>
+</ul>
+<p><strong>关键点：</strong></p>
+<ul>
+<li>每次发送 <code>ping</code> 后重置超时定时器</li>
+<li>收到 <code>pong</code> 后也重置超时定时器</li>
+<li>连接关闭时清理所有定时器，避免内存泄漏</li>
+<li>超时时间设置为发送间隔的 3 倍，避免网络抖动误判&quot;</li>
+</ul>
+<h3 class="rp-toc-include" id="4-工程实践"><a href="#4-工程实践" class="rp-header-anchor rp-link" aria-hidden="true">#</a>4. 工程实践</h3>
+<p><strong>标准答案：</strong>
+&quot;在 <code>onopen</code> 时启动心跳，在 <code>onclose</code> 时停止。超时后关闭连接，触发 <code>onclose</code>，进而触发自动重连。这样形成闭环，确保连接可用性。&quot;</p>
+<hr/>
+<h2 class="rp-toc-include" id="-完整回答示例3-5分钟"><a href="#-完整回答示例3-5分钟" class="rp-header-anchor rp-link" aria-hidden="true">#</a>🎤 完整回答示例（3-5分钟）</h2>
+<p><strong>面试官：</strong> 请介绍一下 WebSocket 的心跳检测机制。</p>
+<p><strong>你：</strong></p>
+<blockquote>
+<p>&quot;好的，我来说一下我在项目中实现的心跳检测机制。</p>
+<p><strong>首先，为什么需要心跳检测？</strong> 主要有三个原因：</p>
+<ol>
+<li><strong>检测假连接</strong>：网络层断开但应用层未感知</li>
+<li><strong>保持连接活跃</strong>：防止中间设备因空闲断开</li>
+<li><strong>及时发现故障</strong>：快速触发重连</li>
+</ol>
+<p><strong>我的实现方案是 Ping-Pong 机制：</strong></p>
+<ul>
+<li>客户端每 10 秒发送 <code>&#x27;ping&#x27;</code> 字符串</li>
+<li>服务器收到后响应 <code>&#x27;pong&#x27;</code></li>
+<li>如果 30 秒内没收到 <code>&#x27;pong&#x27;</code>，判定连接异常</li>
+</ul>
+<p><strong>技术实现上，我用了两个定时器：</strong></p>
+<ul>
+<li><code>setInterval</code>：定时发送 <code>ping</code>（10 秒间隔）</li>
+<li><code>setTimeout</code>：检测超时（30 秒超时）</li>
+</ul>
+<p><strong>关键逻辑是：</strong></p>
+<ul>
+<li>每次发送 <code>ping</code> 后重置超时定时器</li>
+<li>收到 <code>pong</code> 后也重置超时定时器</li>
+<li>这样只要连接正常，超时定时器会不断被重置</li>
+<li>如果连接断开，30 秒后触发超时，关闭连接并触发重连</li>
+</ul>
+<p><strong>在工程实践上：</strong></p>
+<ul>
+<li>连接建立时（<code>onopen</code>）启动心跳</li>
+<li>连接关闭时（<code>onclose</code>）停止心跳并清理定时器</li>
+<li>超时后关闭连接，触发自动重连机制</li>
+</ul>
+<p><strong>这个方案的优势是：</strong></p>
+<ol>
+<li>自动检测，无需人工干预</li>
+<li>及时响应，30 秒内发现问题</li>
+<li>资源安全，正确清理定时器</li>
+<li>与重连机制联动，形成完整的容错体系</li>
+</ol>
+<p><strong>我在实际项目中还遇到过一些问题，比如：</strong></p>
+<ul>
+<li><strong>内存泄漏</strong>：忘记清理定时器，后来在 <code>onclose</code> 中统一清理</li>
+<li><strong>误判</strong>：超时时间设置不合理，后来调整为发送间隔的 3 倍</li>
+<li><strong>重连风暴</strong>：网络不稳定时频繁重连，后来加入了指数退避和最大重连次数限制</li>
+</ul>
+<p>这就是我实现的心跳检测机制。&quot;</p>
+</blockquote>
+<hr/>
+<h2 class="rp-toc-include" id="-常见追问及回答"><a href="#-常见追问及回答" class="rp-header-anchor rp-link" aria-hidden="true">#</a>🔍 常见追问及回答</h2>
+<h3 class="rp-toc-include" id="q1-心跳频率如何选择"><a href="#q1-心跳频率如何选择" class="rp-header-anchor rp-link" aria-hidden="true">#</a>Q1: 心跳频率如何选择？</h3>
+<p><strong>标准答案：</strong></p>
+<blockquote>
+<p>&quot;需要平衡实时性和资源消耗：</p>
+<ul>
+<li><strong>实时性要求高</strong>：可以 5 秒（如股票行情）</li>
+<li><strong>一般场景</strong>：10-30 秒（如聊天、通知）</li>
+<li><strong>低频场景</strong>：可以更长（如状态同步）</li>
+</ul>
+<p>我们选择 10 秒是综合考虑了实时性和服务器压力。&quot;</p>
+</blockquote>
+<h3 class="rp-toc-include" id="q2-服务器端如何实现"><a href="#q2-服务器端如何实现" class="rp-header-anchor rp-link" aria-hidden="true">#</a>Q2: 服务器端如何实现？</h3>
+<p><strong>标准答案：</strong></p>
+<blockquote>
+<p>&quot;服务器端收到 <code>ping</code> 后立即返回 <code>pong</code>。可以用定时器定期检查客户端是否超时，也可以基于心跳时间戳判断。我们用的是时间戳方式，记录每个连接的最后心跳时间，定期扫描超时的连接并关闭。&quot;</p>
+</blockquote>
+<h3 class="rp-toc-include" id="q3-心跳会影响性能吗"><a href="#q3-心跳会影响性能吗" class="rp-header-anchor rp-link" aria-hidden="true">#</a>Q3: 心跳会影响性能吗？</h3>
+<p><strong>标准答案：</strong></p>
+<blockquote>
+<p>&quot;影响很小：</p>
+<ul>
+<li><code>ping</code>/<code>pong</code> 是短字符串，传输量小（几个字节）</li>
+<li>定时器开销也很低</li>
+<li>相比连接断开的代价，心跳成本可忽略</li>
+</ul>
+<p>实际测试中，1000 个连接的心跳开销不到 1% CPU。&quot;</p>
+</blockquote>
+<h3 class="rp-toc-include" id="q4-为什么是-10-秒和-30-秒"><a href="#q4-为什么是-10-秒和-30-秒" class="rp-header-anchor rp-link" aria-hidden="true">#</a>Q4: 为什么是 10 秒和 30 秒？</h3>
+<p><strong>标准答案：</strong></p>
+<blockquote>
+<p>&quot;这是平衡的结果：</p>
+<ul>
+<li><strong>10 秒发送间隔</strong>：不会过于频繁，也不会间隔太长</li>
+<li><strong>30 秒超时</strong>：给网络延迟和服务器处理留出缓冲</li>
+<li><strong>超时时间 = 发送间隔 × 3</strong>，避免误判</li>
+</ul>
+<p>实际项目中可以根据业务调整，比如实时性要求高的可以缩短到 5 秒。&quot;</p>
+</blockquote>
+<h3 class="rp-toc-include" id="q5-有没有其他方案"><a href="#q5-有没有其他方案" class="rp-header-anchor rp-link" aria-hidden="true">#</a>Q5: 有没有其他方案？</h3>
+<p><strong>标准答案：</strong></p>
+<blockquote>
+<p>&quot;还有几种方案：</p>
+<ol>
+<li><strong>TCP Keep-Alive</strong>：系统层，但不够灵活</li>
+<li><strong>应用层心跳</strong>：更可控，我们用的就是这种</li>
+<li><strong>WebSocket Ping/Pong 帧</strong>：协议层，但浏览器 API 不支持发送 Ping 帧</li>
+</ol>
+<p>我们选择应用层心跳，因为兼容性好、可控性强。&quot;</p>
+</blockquote>
+<h3 class="rp-toc-include" id="q6-遇到过什么问题"><a href="#q6-遇到过什么问题" class="rp-header-anchor rp-link" aria-hidden="true">#</a>Q6: 遇到过什么问题？</h3>
+<p><strong>标准答案：</strong></p>
+<blockquote>
+<p>&quot;遇到过几个问题：</p>
+<ol>
+<li><strong>内存泄漏</strong>：忘记清理定时器，已修复</li>
+<li><strong>误判</strong>：超时时间设置不合理，已调整为发送间隔的 3 倍</li>
+<li><strong>重连风暴</strong>：网络不稳定时频繁重连，已加入指数退避和最大重连次数限制</li>
+<li><strong>时区问题</strong>：服务器和客户端时区不一致导致时间戳判断错误，后来统一使用 UTC 时间&quot;</li>
+</ol>
+</blockquote>
+<hr/>
+<h2 class="rp-toc-include" id="-回答要点总结"><a href="#-回答要点总结" class="rp-header-anchor rp-link" aria-hidden="true">#</a>✅ 回答要点总结</h2>
+<h3 class="rp-toc-include" id="回答结构"><a href="#回答结构" class="rp-header-anchor rp-link" aria-hidden="true">#</a>回答结构</h3>
+<ol>
+<li>✅ <strong>结构清晰</strong>：问题 → 方案 → 实现 → 实践</li>
+<li>✅ <strong>有数据</strong>：10 秒、30 秒等具体参数</li>
+<li>✅ <strong>有思考</strong>：为什么这样设计</li>
+<li>✅ <strong>有经验</strong>：遇到过的问题和解决方案</li>
+<li>✅ <strong>有深度</strong>：技术细节和工程实践</li>
+</ol>
+<h3 class="rp-toc-include" id="回答技巧"><a href="#回答技巧" class="rp-header-anchor rp-link" aria-hidden="true">#</a>回答技巧</h3>
+<ul>
+<li>🎯 <strong>先说结论</strong>：直接说明是什么</li>
+<li>📊 <strong>再说原理</strong>：解释为什么</li>
+<li>🔧 <strong>最后说实现</strong>：展示怎么做</li>
+<li>💡 <strong>补充经验</strong>：分享踩过的坑</li>
+</ul>
+<h3 class="rp-toc-include" id="关键数据"><a href="#关键数据" class="rp-header-anchor rp-link" aria-hidden="true">#</a>关键数据</h3>
+<ul>
+<li><strong>发送间隔</strong>：10 秒</li>
+<li><strong>超时时间</strong>：30 秒</li>
+<li><strong>超时倍数</strong>：发送间隔 × 3</li>
+<li><strong>最大重连次数</strong>：5 次</li>
+<li><strong>重连间隔</strong>：3 秒</li>
+</ul>
+<hr/>
+<h2 class="rp-toc-include" id="-代码示例可选展示"><a href="#-代码示例可选展示" class="rp-header-anchor rp-link" aria-hidden="true">#</a>📝 代码示例（可选展示）</h2>
+<p>如果面试官要求看代码，可以展示核心部分：</p>
+<div class="rp-codeblock language-javascript"><div class="rp-codeblock__content"><div class="rp-codeblock__content__scroll-container rp-scrollbar rp-scrollbar--always"><pre class="shiki css-variables" style="background-color:var(--shiki-background);color:var(--shiki-foreground)" tabindex="0" data-lang="javascript"><code><span class="line"><span style="color:var(--shiki-token-comment)">// 启动心跳</span></span>
+<span class="line"><span style="color:var(--shiki-token-function)">startHeartbeat</span><span style="color:var(--shiki-foreground)">() {</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">  if</span><span style="color:var(--shiki-foreground)"> (</span><span style="color:var(--shiki-token-constant)">this</span><span style="color:var(--shiki-foreground)">.heartbeatTimer) </span><span style="color:var(--shiki-token-keyword)">return</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--shiki-token-comment)">  // 每 10 秒发送一次 ping</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">  this</span><span style="color:var(--shiki-foreground)">.heartbeatTimer </span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-token-function)"> setInterval</span><span style="color:var(--shiki-foreground)">(() </span><span style="color:var(--shiki-token-keyword)">=&gt;</span><span style="color:var(--shiki-foreground)"> {</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">    if</span><span style="color:var(--shiki-foreground)"> (</span><span style="color:var(--shiki-token-constant)">this</span><span style="color:var(--shiki-foreground)">.socket </span><span style="color:var(--shiki-token-keyword)">&amp;&amp;</span><span style="color:var(--shiki-token-constant)"> this</span><span style="color:var(--shiki-foreground)">.</span><span style="color:var(--shiki-token-constant)">socket</span><span style="color:var(--shiki-foreground)">.readyState </span><span style="color:var(--shiki-token-keyword)">===</span><span style="color:var(--shiki-token-constant)"> WebSocket</span><span style="color:var(--shiki-foreground)">.</span><span style="color:var(--shiki-token-constant)">OPEN</span><span style="color:var(--shiki-foreground)">) {</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">      this</span><span style="color:var(--shiki-token-function)">.</span><span style="color:var(--shiki-token-constant)">socket</span><span style="color:var(--shiki-token-function)">.send</span><span style="color:var(--shiki-foreground)">(</span><span style="color:var(--shiki-token-string-expression)">&#x27;ping&#x27;</span><span style="color:var(--shiki-foreground)">)</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">      this</span><span style="color:var(--shiki-token-function)">.resetHeartbeatTimeout</span><span style="color:var(--shiki-foreground)">() </span><span style="color:var(--shiki-token-comment)">// 重置超时定时器</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">    }</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">  }</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-token-constant)"> 10000</span><span style="color:var(--shiki-foreground)">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">  this</span><span style="color:var(--shiki-token-function)">.resetHeartbeatTimeout</span><span style="color:var(--shiki-foreground)">()</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--shiki-token-comment)">// 重置超时定时器</span></span>
+<span class="line"><span style="color:var(--shiki-token-function)">resetHeartbeatTimeout</span><span style="color:var(--shiki-foreground)">() {</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">  if</span><span style="color:var(--shiki-foreground)"> (</span><span style="color:var(--shiki-token-constant)">this</span><span style="color:var(--shiki-foreground)">.heartbeatTimeoutTimer) {</span></span>
+<span class="line"><span style="color:var(--shiki-token-function)">    clearTimeout</span><span style="color:var(--shiki-foreground)">(</span><span style="color:var(--shiki-token-constant)">this</span><span style="color:var(--shiki-foreground)">.heartbeatTimeoutTimer)</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--shiki-token-comment)">  // 30 秒内没收到 pong 就超时</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">  this</span><span style="color:var(--shiki-foreground)">.heartbeatTimeoutTimer </span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-token-function)"> setTimeout</span><span style="color:var(--shiki-foreground)">(() </span><span style="color:var(--shiki-token-keyword)">=&gt;</span><span style="color:var(--shiki-foreground)"> {</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">    console</span><span style="color:var(--shiki-token-function)">.warn</span><span style="color:var(--shiki-foreground)">(</span><span style="color:var(--shiki-token-string-expression)">&#x27;Heartbeat timeout, closing connection&#x27;</span><span style="color:var(--shiki-foreground)">)</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">    if</span><span style="color:var(--shiki-foreground)"> (</span><span style="color:var(--shiki-token-constant)">this</span><span style="color:var(--shiki-foreground)">.socket) {</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">      this</span><span style="color:var(--shiki-token-function)">.</span><span style="color:var(--shiki-token-constant)">socket</span><span style="color:var(--shiki-token-function)">.close</span><span style="color:var(--shiki-foreground)">() </span><span style="color:var(--shiki-token-comment)">// 关闭连接，触发重连</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">    }</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">  }</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-token-constant)"> 30000</span><span style="color:var(--shiki-foreground)">)</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--shiki-token-comment)">// 接收消息时处理 pong</span></span>
+<span class="line"><span style="color:var(--shiki-token-function)">onmessage</span><span style="color:var(--shiki-token-keyword)"> =</span><span style="color:var(--shiki-foreground)"> (event) </span><span style="color:var(--shiki-token-keyword)">=&gt;</span><span style="color:var(--shiki-foreground)"> {</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">  if</span><span style="color:var(--shiki-foreground)"> (</span><span style="color:var(--shiki-token-constant)">event</span><span style="color:var(--shiki-foreground)">.data </span><span style="color:var(--shiki-token-keyword)">===</span><span style="color:var(--shiki-token-string-expression)"> &#x27;pong&#x27;</span><span style="color:var(--shiki-foreground)">) {</span></span>
+<span class="line"><span style="color:var(--shiki-token-constant)">    this</span><span style="color:var(--shiki-token-function)">.resetHeartbeatTimeout</span><span style="color:var(--shiki-foreground)">() </span><span style="color:var(--shiki-token-comment)">// 收到 pong，重置超时</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">    return</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">  }</span></span>
+<span class="line"><span style="color:var(--shiki-token-comment)">  // ... 处理其他消息</span></span>
+<span class="line"><span style="color:var(--shiki-foreground)">}</span></span></code></pre></div><div class="rp-code-button-group"><button class="rp-code-button-group__button rp-code-wrap-button" title="切换代码换行" aria-label="切换代码换行"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-button-group__icon--wrapped"><path fill="currentColor" d="M21 5H3v2h18zM3 19h7v-2H3zm0-6h15c1 0 2 .43 2 2s-1 2-2 2h-2v-2l-4 3 4 3v-2h2c2.95 0 4-1.27 4-4 0-2.72-1-4-4-4H3z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-button-group__icon--wrap"><path fill="currentColor" d="M16 7H3V5h13zM3 19h13v-2H3zm19-7-4-3v2H3v2h15v2z"></path></svg></button><button class="rp-code-button-group__button rp-code-copy-button" title="复制代码"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-copy-button__icon rp-code-copy-button__icon--copy"><path fill="currentColor" d="M20 8v12H8V8zm0-2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2"></path><path fill="currentColor" d="M4 16H2V4a2 2 0 0 1 2-2h12v2H4Z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="rp-code-button-group__icon rp-code-copy-button__icon rp-code-copy-button__icon--success"><path fill="currentColor" d="m9.55 18-5.7-5.7 1.425-1.425L9.55 15.15l9.175-9.175L20.15 7.4z"></path></svg></button></div></div></div>
+<hr/>
+<h2 class="rp-toc-include" id="-进阶知识点加分项"><a href="#-进阶知识点加分项" class="rp-header-anchor rp-link" aria-hidden="true">#</a>🎓 进阶知识点（加分项）</h2>
+<h3 class="rp-toc-include" id="1-心跳协议设计"><a href="#1-心跳协议设计" class="rp-header-anchor rp-link" aria-hidden="true">#</a>1. 心跳协议设计</h3>
+<ul>
+<li>使用简单的字符串 <code>&#x27;ping&#x27;</code>/<code>&#x27;pong&#x27;</code>，避免 JSON 解析开销</li>
+<li>也可以使用 JSON 格式，便于扩展（如携带时间戳）</li>
+</ul>
+<h3 class="rp-toc-include" id="2-超时时间计算"><a href="#2-超时时间计算" class="rp-header-anchor rp-link" aria-hidden="true">#</a>2. 超时时间计算</h3>
+<ul>
+<li>超时时间 = 发送间隔 × 2-3 倍</li>
+<li>考虑网络延迟、服务器处理时间、时钟偏差</li>
+</ul>
+<h3 class="rp-toc-include" id="3-心跳与重连的联动"><a href="#3-心跳与重连的联动" class="rp-header-anchor rp-link" aria-hidden="true">#</a>3. 心跳与重连的联动</h3>
+<ul>
+<li>心跳超时 → 关闭连接 → 触发 <code>onclose</code> → 自动重连</li>
+<li>形成完整的容错闭环</li>
+</ul>
+<h3 class="rp-toc-include" id="4-资源管理"><a href="#4-资源管理" class="rp-header-anchor rp-link" aria-hidden="true">#</a>4. 资源管理</h3>
+<ul>
+<li>连接关闭时清理所有定时器</li>
+<li>避免内存泄漏和无效的定时器执行</li>
+</ul>
+<h3 class="rp-toc-include" id="5-性能优化"><a href="#5-性能优化" class="rp-header-anchor rp-link" aria-hidden="true">#</a>5. 性能优化</h3>
+<ul>
+<li>心跳消息尽量小（字符串优于 JSON）</li>
+<li>批量处理多个连接的心跳</li>
+<li>使用 Web Worker 处理心跳（可选）</li>
+</ul>
+<hr/>
+<h2 class="rp-toc-include" id="-相关知识点"><a href="#-相关知识点" class="rp-header-anchor rp-link" aria-hidden="true">#</a>📚 相关知识点</h2>
+<h3 class="rp-toc-include" id="websocket-状态"><a href="#websocket-状态" class="rp-header-anchor rp-link" aria-hidden="true">#</a>WebSocket 状态</h3>
+<ul>
+<li><code>WebSocket.CONNECTING</code> (0) - 连接中</li>
+<li><code>WebSocket.OPEN</code> (1) - 已连接</li>
+<li><code>WebSocket.CLOSING</code> (2) - 关闭中</li>
+<li><code>WebSocket.CLOSED</code> (3) - 已关闭</li>
+</ul>
+<h3 class="rp-toc-include" id="心跳检测时机"><a href="#心跳检测时机" class="rp-header-anchor rp-link" aria-hidden="true">#</a>心跳检测时机</h3>
+<ul>
+<li>✅ 连接建立时启动</li>
+<li>✅ 连接关闭时停止</li>
+<li>✅ 超时时关闭连接</li>
+</ul>
+<h3 class="rp-toc-include" id="最佳实践"><a href="#最佳实践" class="rp-header-anchor rp-link" aria-hidden="true">#</a>最佳实践</h3>
+<ol>
+<li>✅ 超时时间 &gt; 发送间隔 × 2</li>
+<li>✅ 及时清理定时器</li>
+<li>✅ 与重连机制联动</li>
+<li>✅ 记录心跳日志（便于排查问题）</li>
+</ol>
+<hr/>
+<p><strong>最后更新：</strong> 2024年</p>
+<p><strong>适用场景：</strong> WebSocket 相关面试、技术分享、代码审查</p>
+<h2 class="rp-toc-include" id="说说tcp为什么需要三次握手和四次挥手"><a href="#说说tcp为什么需要三次握手和四次挥手" class="rp-header-anchor rp-link" aria-hidden="true">#</a>说说TCP为什么需要三次握手和四次挥手</h2>
+<p><a href="https://vue3js.cn/interview/http/handshakes_waves.html#%E4%B8%80%E3%80%81%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B" target="_blank" rel="noopener noreferrer" class="rp-link">https://vue3js.cn/interview/http/handshakes_waves.html#%E4%B8%80%E3%80%81%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B</a></p><!--/$--></div><footer class="rp-doc-footer"><div class="rp-doc-footer__edit"></div><div class="rp-doc-footer__divider"></div><div class="rp-prev-next-page"><a href="/docs/S.性能监控.html" class="rp-prev-next-page__item rp-prev-next-page__prev rp-link"><span class="rp-prev-next-page__item__desc">上一页</span><span class="rp-prev-next-page__item__title"><svg width="1em" height="1em" viewBox="0 0 32 32" class="rp-prev-next-page__icon rp-prev-next-page__rotate_180"><path fill="currentColor" d="M22 16 12 26l-1.4-1.4 8.6-8.6-8.6-8.6L12 6z"></path></svg><span>性能监控SDK</span></span></a><a href="/docs/K.综合场景题.html" class="rp-prev-next-page__item rp-prev-next-page__next rp-link"><span class="rp-prev-next-page__item__desc">下一页</span><span class="rp-prev-next-page__item__title"><span>综合场景题</span><svg width="1em" height="1em" viewBox="0 0 32 32" class="rp-prev-next-page__icon"><path fill="currentColor" d="M22 16 12 26l-1.4-1.4 8.6-8.6-8.6-8.6L12 6z"></path></svg></span></a></div></footer></main></div><aside class="rp-doc-layout__outline rp-scrollbar"><div class="rp-outline"><div class="rp-outline__title">目录<svg width="14" height="14" class="rp-progress-circle"><circle cx="7" cy="7" r="6" stroke-linecap="round" fill="none" stroke="var(--rp-c-divider-light)" stroke-width="2"></circle><circle cx="7" cy="7" r="6" stroke-linecap="round" fill="none" stroke="var(--rp-c-brand)" stroke-width="2" stroke-dasharray="37.69911184307752" stroke-dashoffset="37.69911184307752" transform="rotate(-90 7 7)" style="transition:stroke-dashoffset 0.3s"></circle></svg></div><nav class="rp-outline__toc rp-scrollbar"><a href="#http协议" class="rp-toc-item rp-link" title="http协议" style="padding-left:0" data-depth="0"><span class="rp-toc-item__text rp-doc">http协议</span></a><a href="#同源策略" class="rp-toc-item rp-link" title="同源策略" style="padding-left:0" data-depth="0"><span class="rp-toc-item__text rp-doc">同源策略</span></a><a href="#跨域" class="rp-toc-item rp-link" title="跨域" style="padding-left:0" data-depth="0"><span class="rp-toc-item__text rp-doc">跨域</span></a><a href="#一次完整的http请求所经历的7个步骤" class="rp-toc-item rp-link" title="一次完整的HTTP请求所经历的7个步骤" style="padding-left:0" data-depth="0"><span class="rp-toc-item__text rp-doc">一次完整的HTTP请求所经历的7个步骤</span></a><a href="#web安全加上原理" class="rp-toc-item rp-link" title="Web安全(加上原理)" style="padding-left:0" data-depth="0"><span class="rp-toc-item__text rp-doc">Web安全(加上原理)</span></a><a href="#跨域-1" class="rp-toc-item rp-link" title="跨域" style="padding-left:0" data-depth="0"><span class="rp-toc-item__text rp-doc">跨域</span></a><a href="#dns解析过程" class="rp-toc-item rp-link" title="DNS解析过程" style="padding-left:0" data-depth="0"><span class="rp-toc-item__text rp-doc">DNS解析过程</span></a><a href="#内存泄漏" class="rp-toc-item rp-link" title="内存泄漏" style="padding-left:0" data-depth="0"><span class="rp-toc-item__text rp-doc">内存泄漏</span></a><a href="#axios下载文件流处理" class="rp-toc-item rp-link" title="Axios下载文件流处理" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">Axios下载文件流处理</span></a><a href="#统计pv-uv" class="rp-toc-item rp-link" title="统计pv uv" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">统计pv uv</span></a><a href="#重写浏览器的方法-pushstate-和-replacestate" class="rp-toc-item rp-link" title="重写浏览器的方法 pushState 和 replaceState" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">重写浏览器的方法 pushState 和 replaceState</span></a><a href="#监听元素是否在页面中" class="rp-toc-item rp-link" title="监听元素是否在页面中" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">监听元素是否在页面中</span></a><a href="#get和post有什么区别" class="rp-toc-item rp-link" title="get和post有什么区别" style="padding-left:0" data-depth="0"><span class="rp-toc-item__text rp-doc">get和post有什么区别</span></a><a href="#解释一下什么是json" class="rp-toc-item rp-link" title="解释一下什么是json" style="padding-left:0" data-depth="0"><span class="rp-toc-item__text rp-doc">解释一下什么是json</span></a><a href="#http协议规定的协议头和请求头有什么" class="rp-toc-item rp-link" title="HTTP协议规定的协议头和请求头有什么" style="padding-left:0" data-depth="0"><span class="rp-toc-item__text rp-doc">HTTP协议规定的协议头和请求头有什么</span></a><a href="#-目录" class="rp-toc-item rp-link" title="📋 目录" style="padding-left:0" data-depth="0"><span class="rp-toc-item__text rp-doc">📋 目录</span></a><a href="#-开场白30秒" class="rp-toc-item rp-link" title="🎯 开场白（30秒）" style="padding-left:0" data-depth="0"><span class="rp-toc-item__text rp-doc">🎯 开场白（30秒）</span></a><a href="#-核心回答2-3分钟" class="rp-toc-item rp-link" title="💡 核心回答（2-3分钟）" style="padding-left:0" data-depth="0"><span class="rp-toc-item__text rp-doc">💡 核心回答（2-3分钟）</span></a><a href="#1-为什么需要心跳检测" class="rp-toc-item rp-link" title="1. 为什么需要心跳检测？" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">1. 为什么需要心跳检测？</span></a><a href="#2-实现方案" class="rp-toc-item rp-link" title="2. 实现方案" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">2. 实现方案</span></a><a href="#3-技术细节" class="rp-toc-item rp-link" title="3. 技术细节" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">3. 技术细节</span></a><a href="#4-工程实践" class="rp-toc-item rp-link" title="4. 工程实践" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">4. 工程实践</span></a><a href="#-完整回答示例3-5分钟" class="rp-toc-item rp-link" title="🎤 完整回答示例（3-5分钟）" style="padding-left:0" data-depth="0"><span class="rp-toc-item__text rp-doc">🎤 完整回答示例（3-5分钟）</span></a><a href="#-常见追问及回答" class="rp-toc-item rp-link" title="🔍 常见追问及回答" style="padding-left:0" data-depth="0"><span class="rp-toc-item__text rp-doc">🔍 常见追问及回答</span></a><a href="#q1-心跳频率如何选择" class="rp-toc-item rp-link" title="Q1: 心跳频率如何选择？" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">Q1: 心跳频率如何选择？</span></a><a href="#q2-服务器端如何实现" class="rp-toc-item rp-link" title="Q2: 服务器端如何实现？" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">Q2: 服务器端如何实现？</span></a><a href="#q3-心跳会影响性能吗" class="rp-toc-item rp-link" title="Q3: 心跳会影响性能吗？" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">Q3: 心跳会影响性能吗？</span></a><a href="#q4-为什么是-10-秒和-30-秒" class="rp-toc-item rp-link" title="Q4: 为什么是 10 秒和 30 秒？" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">Q4: 为什么是 10 秒和 30 秒？</span></a><a href="#q5-有没有其他方案" class="rp-toc-item rp-link" title="Q5: 有没有其他方案？" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">Q5: 有没有其他方案？</span></a><a href="#q6-遇到过什么问题" class="rp-toc-item rp-link" title="Q6: 遇到过什么问题？" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">Q6: 遇到过什么问题？</span></a><a href="#-回答要点总结" class="rp-toc-item rp-link" title="✅ 回答要点总结" style="padding-left:0" data-depth="0"><span class="rp-toc-item__text rp-doc">✅ 回答要点总结</span></a><a href="#回答结构" class="rp-toc-item rp-link" title="回答结构" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">回答结构</span></a><a href="#回答技巧" class="rp-toc-item rp-link" title="回答技巧" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">回答技巧</span></a><a href="#关键数据" class="rp-toc-item rp-link" title="关键数据" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">关键数据</span></a><a href="#-代码示例可选展示" class="rp-toc-item rp-link" title="📝 代码示例（可选展示）" style="padding-left:0" data-depth="0"><span class="rp-toc-item__text rp-doc">📝 代码示例（可选展示）</span></a><a href="#-进阶知识点加分项" class="rp-toc-item rp-link" title="🎓 进阶知识点（加分项）" style="padding-left:0" data-depth="0"><span class="rp-toc-item__text rp-doc">🎓 进阶知识点（加分项）</span></a><a href="#1-心跳协议设计" class="rp-toc-item rp-link" title="1. 心跳协议设计" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">1. 心跳协议设计</span></a><a href="#2-超时时间计算" class="rp-toc-item rp-link" title="2. 超时时间计算" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">2. 超时时间计算</span></a><a href="#3-心跳与重连的联动" class="rp-toc-item rp-link" title="3. 心跳与重连的联动" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">3. 心跳与重连的联动</span></a><a href="#4-资源管理" class="rp-toc-item rp-link" title="4. 资源管理" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">4. 资源管理</span></a><a href="#5-性能优化" class="rp-toc-item rp-link" title="5. 性能优化" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">5. 性能优化</span></a><a href="#-相关知识点" class="rp-toc-item rp-link" title="📚 相关知识点" style="padding-left:0" data-depth="0"><span class="rp-toc-item__text rp-doc">📚 相关知识点</span></a><a href="#websocket-状态" class="rp-toc-item rp-link" title="WebSocket 状态" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">WebSocket 状态</span></a><a href="#心跳检测时机" class="rp-toc-item rp-link" title="心跳检测时机" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">心跳检测时机</span></a><a href="#最佳实践" class="rp-toc-item rp-link" title="最佳实践" style="padding-left:12px" data-depth="1"><span class="rp-toc-item__text rp-doc">最佳实践</span></a><a href="#说说tcp为什么需要三次握手和四次挥手" class="rp-toc-item rp-link" title="说说TCP为什么需要三次握手和四次挥手" style="padding-left:0" data-depth="0"><span class="rp-toc-item__text rp-doc">说说TCP为什么需要三次握手和四次挥手</span></a></nav><div class="rp-outline__divider"></div><div class="rp-outline__bottom"></div></div></aside></div></div>
+    <div id="__rspress_modal_container"></div>
+  </body>
+</html>
